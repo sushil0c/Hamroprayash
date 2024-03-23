@@ -1,16 +1,19 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
     <title>Notepad</title>
 </head>
 <body>
+    </div>
 </header>
 <div class="actions">
     <div class="actions__container">
-        <input id="search-text" type="text" class="input" placeholder="search your notes">
-        <select name="" id="filter-by" class="dropdown">
+        <input id="search-text" type="text" class="input" placeholder="Search your notes">
+        <select id="filter-by" class="dropdown">
             <option value="byEdited">Sort by last edited</option>
             <option value="byCreated">Sort by recently created</option>
             <option value="alphabetical">Sort alphabetically</option>
@@ -19,12 +22,108 @@
 </div>
 <div class="container">
     <div id="notes"></div>
-    <button id="create-note" class="button">Create a Note</button>    
-</div>    
-    <script src="uuid.js"></script>
-    <script src="moment-with-locales.js"></script> 
-    <script src="notes-functions.js"></script>
-    <script src="notes-app.js"></script>
+    <button id="create-note" class="button">Create a Note</button>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuidv4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script>
+    let notes = [];
 
+    const filters = {
+        searchText: '',
+        sortBy: 'byEdited'
+    };
 
-</body></html>
+    function renderNotes(notes, filters) {
+        const filteredNotes = notes.filter((note) => {
+            const searchTextMatch = note.title.toLowerCase().includes(filters.searchText.toLowerCase());
+            return searchTextMatch;
+        });
+
+        document.querySelector('#notes').innerHTML = '';
+
+        filteredNotes.forEach((note) => {
+            const noteElement = generateNoteDOM(note);
+            document.querySelector('#notes').appendChild(noteElement);
+        });
+    }
+
+    function generateNoteDOM(note) {
+        const noteElement = document.createElement('div');
+        const titleElement = document.createElement('span');
+        const bodyElement = document.createElement('p');
+
+        // Set up the title text
+        if (note.title.length > 0) {
+            titleElement.textContent = note.title;
+        } else {
+            titleElement.textContent = 'Unnamed note';
+        }
+        titleElement.classList.add('note-title');
+        noteElement.appendChild(titleElement);
+
+        // Set up the body text
+        if (note.body.length > 0) {
+            bodyElement.textContent = note.body;
+        } else {
+            bodyElement.textContent = 'No content';
+        }
+        bodyElement.classList.add('note-body');
+        noteElement.appendChild(bodyElement);
+
+        return noteElement;
+    }
+
+    function getSavedNotes() {
+        const notesJSON = localStorage.getItem('notes');
+        try {
+            return notesJSON ? JSON.parse(notesJSON) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveNotes(notes) {
+        localStorage.setItem('notes', JSON.stringify(notes));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        notes = getSavedNotes();
+        renderNotes(notes, filters);
+    });
+
+    document.querySelector('#create-note').addEventListener('click', () => {
+        const id = uuidv4();
+        const timestamp = moment().valueOf();
+
+        notes.push({
+            id: id,
+            title: '',
+            body: '',
+            createdAt: timestamp,
+            updatedAt: timestamp
+        });
+
+        saveNotes(notes);
+        location.assign(`/edit.html#${id}`);
+    });
+
+    document.querySelector('#search-text').addEventListener('input', (e) => {
+        filters.searchText = e.target.value;
+        renderNotes(notes, filters);
+    });
+
+    document.querySelector('#filter-by').addEventListener('change', (e) => {
+        filters.sortBy = e.target.value;
+        renderNotes(notes, filters);
+    });
+
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'notes') {
+            notes = JSON.parse(e.newValue);
+            renderNotes(notes, filters);
+        }
+    });
+</script>
+</body>
+</html>Enter file contents here

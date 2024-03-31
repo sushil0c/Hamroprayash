@@ -1,0 +1,19 @@
+        /* Styles for the chat messages */
+        .msg, .msg1 {
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+
+        .msg {
+            background-color: #e1ffc7;
+        }
+
+        .msg1 {
+            background-color: #c7e1ff;
+        }
+
+        /* Styles for the copy button */
+        .copy-btn {
+            margin-left: 10px;
+        }

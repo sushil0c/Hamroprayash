@@ -1,4 +1,4 @@
-        function send() {
+function send() {
             var input_msg = document.getElementById('msg_text').value;
             var tb = document.getElementById('tb');
             if (input_msg != '') {
@@ -10,6 +10,7 @@
                 var msg_box = document.getElementById(newId);
                 var msg_text = document.createElement('span');
                 msg_text.innerText = input_msg;
+                // announce("message send successfully"); // Remove this line
                 msg_box.appendChild(msg_text);
                 const user_msg = input_msg;
                 document.getElementById('msg_text').value = '';
@@ -27,16 +28,20 @@
                         var ai_msg_text = document.createElement('span');
                         ai_msg_text.innerText = answerValue;
                         ai_msg_box.appendChild(ai_msg_text);
+
+                        // Add spoken AI reply
                         var ai_reply_audio = new SpeechSynthesisUtterance(answerValue);
                         window.speechSynthesis.speak(ai_reply_audio);
-                        var typing_sound = new SpeechSynthesisUtterance('Typing...');
-                        window.speechSynthesis.speak(typing_sound);
+
+                        // Add copy button
                         var copyButton = document.createElement('button');
                         copyButton.innerText = 'Copy';
                         copyButton.classList.add('copy-btn');
                         ai_msg_text.focus();
+                        // announce("BTA AI replied"); // Remove this line
                         copyButton.addEventListener('click', function() {
                             navigator.clipboard.writeText(answerValue);
+                            // announce("message copied"); // Remove this line
                         });
                         ai_msg_box.appendChild(copyButton);
                     }
@@ -54,6 +59,7 @@
             var messages = document.querySelectorAll('.msg, .msg1');
             for (var i = 0; i < messages.length; i++) {
                 messages[i].parentNode.removeChild(messages[i]);
+                // announce("chat refreshed successfully"); // Remove this line
             }
             var tb = document.getElementById('tb');
             tb.scrollTop = 0;
@@ -61,5 +67,4 @@
 
         function generateUniqueId() {
             return 'id_' + Math.random().toString(36).substr(2, 9);
-        }
-Enter file contents here
+        }Enter file contents here

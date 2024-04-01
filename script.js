@@ -1,16 +1,4 @@
 function send() {
-    // Display typing message
-    var typing_msg = document.createElement('div');
-    typing_msg.setAttribute('class', 'msg1 typing');
-    var typingId = generateUniqueId();
-    typing_msg.setAttribute('id', typingId);
-    var tb = document.getElementById('tb');
-    tb.appendChild(typing_msg);
-    var typing_msg_box = document.getElementById(typingId);
-    var typing_msg_text = document.createElement('span');
-    typing_msg_text.innerText = 'typing...';
-    typing_msg_box.appendChild(typing_msg_text);
-    
     var input_msg = document.getElementById('msg_text').value;
     var tb = document.getElementById('tb');
     if (input_msg != '') {
@@ -22,15 +10,13 @@ function send() {
         var msg_box = document.getElementById(newId);
         var msg_text = document.createElement('span');
         msg_text.innerText = input_msg;
+        // announce("message send successfully"); // Remove this line
         msg_box.appendChild(msg_text);
         const user_msg = input_msg;
         document.getElementById('msg_text').value = '';
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
-                // Remove typing message
-                typing_msg_box.parentNode.removeChild(typing_msg_box);
-                
                 const responseData = JSON.parse(xhttp.responseText);
                 const answerValue = responseData.answer;
                 var ai_msg = document.createElement('div');
@@ -47,28 +33,42 @@ function send() {
                 var ai_reply_audio = new SpeechSynthesisUtterance(answerValue);
                 window.speechSynthesis.speak(ai_reply_audio);
 
+                // Add sound for AI typing
+                var typing_sound = new SpeechSynthesisUtterance('Typing...');
+                window.speechSynthesis.speak(typing_sound);
+
                 // Add copy button
                 var copyButton = document.createElement('button');
                 copyButton.innerText = 'Copy';
                 copyButton.classList.add('copy-btn');
                 ai_msg_text.focus();
+                // announce("BTA AI replied"); // Remove this line
                 copyButton.addEventListener('click', function() {
                     navigator.clipboard.writeText(answerValue);
+                    // announce("message copied"); // Remove this line
                 });
                 ai_msg_box.appendChild(copyButton);
-
-                // Play sound
-                var audio = new Audio('sound.mp3');
-                audio.play();
-
-                // Pause sound when AI reply is received
-                ai_reply_audio.onend = function() {
-                    audio.pause();
-                };
             }
             tb.scrollTop = tb.scrollHeight;
         };
         xhttp.open("POST", "https://chatgpt.apinepdev.workers.dev/?question=" + user_msg, true);
         xhttp.send();
     }
-}Enter file contents here
+}
+
+// Add event listener to the Send button
+document.getElementById('sendButton').addEventListener('click', send);
+
+document.getElementById('refreshButton').addEventListener('click', function() {
+    var messages = document.querySelectorAll('.msg, .msg1');
+    for (var i = 0; i < messages.length; i++) {
+        messages[i].parentNode.removeChild(messages[i]);
+        // announce("chat refreshed successfully"); // Remove this line
+    }
+    var tb = document.getElementById('tb');
+    tb.scrollTop = 0;
+});
+
+function generateUniqueId() {
+    return 'id_' + Math.random().toString(36).substr(2, 9);
+}
